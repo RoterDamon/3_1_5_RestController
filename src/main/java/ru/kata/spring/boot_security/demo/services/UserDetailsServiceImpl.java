@@ -16,16 +16,14 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UserDetailsServiceImpl implements UserDetailsService, UserService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserDetailsServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -33,53 +31,5 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
         User user = userRepository.findByUsername(username);
         return Optional.ofNullable(user)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public User findUserById(Long userId) {
-        Optional<User> userFromDb = userRepository.findById(userId);
-        return userFromDb.orElse(new User());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<User> allUsers() {
-        return userRepository.findAll();
-    }
-    @Transactional(readOnly = true)
-    @Override
-    public User userByName(String name) {
-        return userRepository.findByUsername(name);
-    }
-
-    @Override
-    public boolean saveUser(User user) {
-        User userFromDB = userRepository.findByUsername(user.getUsername());
-        if (userFromDB != null) {
-            return false;
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return true;
-    }
-
-    @Override
-    public boolean updateUser(User user, Long userId) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (userRepository.findById(userId).isPresent()) {
-            userRepository.save(user);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean deleteUser(Long userId) {
-        if (userRepository.findById(userId).isPresent()) {
-            userRepository.deleteById(userId);
-            return true;
-        }
-        return false;
     }
 }
