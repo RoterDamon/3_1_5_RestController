@@ -32,9 +32,7 @@ public class AdminUserRestController {
     public ResponseEntity<List<User>> read() {
         final List<User> users = userService.allUsers();
 
-        return users != null &&  !users.isEmpty()
-                ? new ResponseEntity<>(users, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping(value = "/user/{id}")
@@ -48,19 +46,13 @@ public class AdminUserRestController {
 
     @PutMapping(value = "/update/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody User user, @PathVariable(name = "id") Long id) {
-        final boolean updated = userService.updateUser(user, id);
-
-        return updated
-                ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        userService.updateUser(user, id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
-        final boolean deleted = userService.deleteUser(id);
-
-        return deleted
-                ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
